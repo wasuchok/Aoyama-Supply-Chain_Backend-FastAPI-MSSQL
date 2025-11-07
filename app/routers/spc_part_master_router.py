@@ -5,8 +5,11 @@ from typing import List
 
 from app.core.database import get_db
 from app.schemas.response_schema import ApiResponse, PaginationMeta
-from app.schemas.spc_part_master_schema import SpcPartMasterResponse
-from app.services.spc_part_master_service import get_spc_part_master_all
+from app.schemas.spc_part_master_schema import (
+    SpcPartMasterDetailResponse,
+    SpcPartMasterResponse,
+)
+from app.services.spc_part_master_service import get_amount_production_by, get_spc_part_master_all, get_spc_part_master_by_part_no
 
 router = APIRouter(prefix="/spc-part-master", tags=["Spc Part Master"])
 
@@ -30,3 +33,32 @@ def read_spc_part_masters(
     duration = f"{(time.perf_counter() - start_time):.3f}s"
 
     return ApiResponse(duration=duration, resultData=data, pagination=pagination)
+
+@router.get("/{part_no}", response_model=ApiResponse[SpcPartMasterDetailResponse])
+def read_spc_part_master_by_part_no(
+    part_no: str,
+    db: Session = Depends(get_db),
+):
+    start_time = time.perf_counter()
+
+
+    data = get_spc_part_master_by_part_no(db, part_no=part_no)
+
+
+    duration = f"{(time.perf_counter() - start_time):.3f}s"
+
+    return ApiResponse(duration=duration, resultData=data)
+
+@router.get("/statistics/production-by", response_model=ApiResponse[List[dict]])
+def read_amount_production_by(
+    db: Session = Depends(get_db),
+):
+    start_time = time.perf_counter()
+
+
+    data = get_amount_production_by(db)
+
+
+    duration = f"{(time.perf_counter() - start_time):.3f}s"
+
+    return ApiResponse(duration=duration, resultData=data)
