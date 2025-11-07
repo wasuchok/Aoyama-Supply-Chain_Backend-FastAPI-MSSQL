@@ -18,12 +18,14 @@ def read_spc_part_masters(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    search: str | None = Query(None, description="Search keyword (search all fields)"),
 ):
     start_time = time.perf_counter()
 
 
-    data, total_items = get_spc_part_master_all(db, page=page, page_size=page_size)
-
+    data, total_items = get_spc_part_master_all(
+        db, page=page, page_size=page_size, search=search
+    )
 
     total_pages = (total_items + page_size - 1) // page_size
     pagination = PaginationMeta(

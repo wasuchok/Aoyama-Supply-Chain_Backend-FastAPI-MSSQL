@@ -1,6 +1,6 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-
+from sqlalchemy import or_
 from app.models.spc_part_master_model import SpcPartMasterModel
 from app.schemas.spc_part_master_schema import (
     PartInformationResponse,
@@ -8,10 +8,28 @@ from app.schemas.spc_part_master_schema import (
     SpcPartMasterResponse,
 )
 
-def get_spc_part_master_all(db: Session, page: int = 1, page_size: int = 10):
+def get_spc_part_master_all(db: Session, page: int = 1, page_size: int = 10, search: str | None = None,):
     skip = (page - 1) * page_size
 
     query = db.query(SpcPartMasterModel)
+
+    if search:
+        like_pattern = f"%{search}%"
+        query = query.filter(
+            or_(
+                SpcPartMasterModel.Part_No.like(like_pattern),
+                SpcPartMasterModel.Part_Name.like(like_pattern),
+                SpcPartMasterModel.Mat_Name.like(like_pattern),
+                SpcPartMasterModel.Diameter.like(like_pattern),
+                SpcPartMasterModel.M_Size.like(like_pattern),
+                SpcPartMasterModel.Small.like(like_pattern),
+                SpcPartMasterModel.Medium.like(like_pattern),
+                SpcPartMasterModel.Large.like(like_pattern),
+                SpcPartMasterModel.Surface.like(like_pattern),
+                SpcPartMasterModel.Production_By.like(like_pattern),
+                SpcPartMasterModel.Update_By.like(like_pattern),
+            )
+        )
 
     total_items = query.count()
 
