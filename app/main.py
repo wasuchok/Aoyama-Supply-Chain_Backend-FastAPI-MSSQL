@@ -8,6 +8,7 @@ app = FastAPI(title="Aoyama Supply Chain Backend", version="1.0")
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://10.17.3.244:3000",
 ]
 
 app.add_middleware(
