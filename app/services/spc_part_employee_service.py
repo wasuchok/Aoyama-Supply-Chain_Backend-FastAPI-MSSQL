@@ -20,7 +20,6 @@ from app.schemas.spc_part_role_schema import (
 def _hash_password(raw_password: str | None) -> str | None:
     if raw_password is None:
         return None
-    # SHA-256 keeps dependencies minimal; consider bcrypt/argon2 if stronger hashing is needed.
     return hashlib.sha256(raw_password.encode("utf-8")).hexdigest()
 
 

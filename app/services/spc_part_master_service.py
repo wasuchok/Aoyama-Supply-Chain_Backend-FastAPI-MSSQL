@@ -8,10 +8,31 @@ from app.schemas.spc_part_master_schema import (
     SpcPartMasterResponse,
 )
 
-def get_spc_part_master_all(db: Session, page: int = 1, page_size: int = 10, search: str | None = None,):
+def get_spc_part_master_all(
+    db: Session,
+    page: int = 1,
+    page_size: int = 10,
+    search: str | None = None,
+    large: str | None = None,
+    medium: str | None = None,
+    small: str | None = None,
+    production_by: str | None = None,
+):
     skip = (page - 1) * page_size
 
     query = db.query(SpcPartMasterModel)
+
+    if large:
+        query = query.filter(SpcPartMasterModel.Large == large)
+
+    if medium:
+        query = query.filter(SpcPartMasterModel.Medium == medium)
+
+    if small:
+        query = query.filter(SpcPartMasterModel.Small == small)
+
+    if production_by:
+        query = query.filter(SpcPartMasterModel.Production_By == production_by)
 
     if search:
         like_pattern = f"%{search}%"
@@ -91,3 +112,25 @@ def get_amount_production_by(db : Session) :
     return result
 
 
+def get_part_levels(db: Session, large: str | None = None, medium: str | None = None):
+    if large is None:
+        sql = text("SELECT DISTINCT Large FROM Tb_Spc_Part_Master WHERE Large IS NOT NULL ORDER BY Large")
+        result = db.execute(sql)
+    elif medium is None:
+        sql = text("""
+            SELECT DISTINCT Medium
+            FROM Tb_Spc_Part_Master
+            WHERE Large = :large AND Medium IS NOT NULL
+            ORDER BY Medium
+        """)
+        result = db.execute(sql, {"large": large})
+    else:
+        sql = text("""
+            SELECT DISTINCT Small
+            FROM Tb_Spc_Part_Master
+            WHERE Large = :large AND Medium = :medium AND Small IS NOT NULL
+            ORDER BY Small
+        """)
+        result = db.execute(sql, {"large": large, "medium": medium})
+
+    return [row[0] for row in result]
